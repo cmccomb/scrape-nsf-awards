@@ -6,6 +6,7 @@ import datetime  # to get hte current year
 
 import datasets  # to make/upload a dataset
 import pandas  # to handle the dataset
+import lxml.etree
 
 # Get API token from command line
 HF_TOKEN = sys.argv[1]
@@ -29,8 +30,11 @@ for year in years:
         zip_ref.extractall(".")
         for file in os.listdir("./"):
             if file.endswith(".xml"):
-                dicts.append(pandas.read_xml(file).to_dict(orient="records")[0])
-                os.remove(file)
+                try:
+                    dicts.append(pandas.read_xml(file).to_dict(orient="records")[0])
+                    os.remove(file)
+                except lxml.etree.XMLSyntaxError:
+                    print(file)
 
 datasets.Dataset.from_pandas(pandas.DataFrame().from_dict(dicts)).push_to_hub(
     "ccm/nsf-awards", token=HF_TOKEN
