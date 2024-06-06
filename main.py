@@ -11,7 +11,7 @@ HF_TOKEN = sys.argv[1]
 
 dicts = []
 
-for year in ["Historical"] + [str(y) for y in list(range(1959, 1962))]:
+for year in ["Historical"] + [str(y) for y in list(range(1959, 1967))]:
     print(year)
     filename, headers = urllib.request.urlretrieve(
         "https://www.nsf.gov/awardsearch/download?DownloadFileName="
