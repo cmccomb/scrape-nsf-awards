@@ -7,7 +7,7 @@ import datetime  # to get hte current year
 import datasets  # to make/upload a dataset
 import pandas  # to handle the dataset
 import lxml.etree  # For error handling
-import tqdm  # for displaying progressm
+import tqdm  # for displaying progress
 
 # Get API token from command line
 HF_TOKEN = sys.argv[1]
@@ -17,7 +17,7 @@ years = ["Historical"] + [
     str(y) for y in list(range(1959, datetime.datetime.now().year + 1))
 ]
 
-# Step through each year, download the associated file, and parse it as set of xl files
+# Step through each year, download the associated file, and parse it as set of xml files
 for year in tqdm.tqdm(years, "Downloading annual reports"):
 
     # Download the file
@@ -32,18 +32,18 @@ for year in tqdm.tqdm(years, "Downloading annual reports"):
         zip_ref.extractall(".")
 
 # Make an empty list to add dicts too
-dicts = []
+awards = []
 
 # For every xml file that we just exposed, turn it into a dict
 for file in tqdm.tqdm(os.listdir("./"), "Loading awards"):
     if file.endswith(".xml"):
         try:
-            dicts.append(pandas.read_xml(file).to_dict(orient="records")[0])
+            awards.append(pandas.read_xml(file).to_dict(orient="records")[0])
             os.remove(file)
         except lxml.etree.XMLSyntaxError:
             print(file)
 
 # Take the dicts, make a dataframe, make a dataset, and upload it
-datasets.Dataset.from_pandas(pandas.DataFrame().from_dict(dicts)).push_to_hub(
+datasets.Dataset.from_pandas(pandas.DataFrame().from_dict(awards)).push_to_hub(
     "ccm/nsf-awards", token=HF_TOKEN
 )
