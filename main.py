@@ -11,7 +11,7 @@ HF_TOKEN = sys.argv[1]
 
 dicts = []
 
-for year in ["Historical"] + [str(y) for y in list(range(1959, 1967))]:
+for year in ["Historical"] + [str(y) for y in list(range(1959, 1965))]:
     print(year)
     filename, headers = urllib.request.urlretrieve(
         "https://www.nsf.gov/awardsearch/download?DownloadFileName="
@@ -22,10 +22,7 @@ for year in ["Historical"] + [str(y) for y in list(range(1959, 1967))]:
         zip_ref.extractall(".")
         for file in os.listdir("./"):
             if file.endswith(".xml"):
-                try:
-                    dicts.append(pandas.read_xml(file).to_dict(orient="records")[0])
-                except:
-                    print("\t" + file)
+                dicts.append(pandas.read_xml(file).to_dict(orient="records")[0])
                 os.remove(file)
 
 datasets.Dataset.from_pandas(pandas.DataFrame().from_dict(dicts)).push_to_hub(
