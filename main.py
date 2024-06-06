@@ -12,7 +12,8 @@ import tqdm  # for displaying progress
 # Get API token from command line
 HF_TOKEN = sys.argv[1]
 
-# What years do we care about?
+# What years do we care about? Let's get all of them! We also need to download the 
+# historical file though (see here: https://www.nsf.gov/awardsearch/download.jsp)
 years = ["Historical"] + [
     str(y) for y in list(range(1959, datetime.datetime.now().year + 1))
 ]
