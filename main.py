@@ -2,6 +2,7 @@ import os
 import sys
 import urllib.request
 import zipfile
+import datetime
 
 import datasets
 import pandas
@@ -11,7 +12,11 @@ HF_TOKEN = sys.argv[1]
 
 dicts = []
 
-for year in ["Historical"] + [str(y) for y in list(range(1959, 1965))]:
+years = ["Historical"] + [
+    str(y) for y in list(range(1959, datetime.datetime.now().year + 1))
+]
+
+for year in years:
     print(year)
     filename, headers = urllib.request.urlretrieve(
         "https://www.nsf.gov/awardsearch/download?DownloadFileName="
