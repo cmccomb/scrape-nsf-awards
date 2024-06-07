@@ -10,16 +10,16 @@ import tqdm  # for displaying progress
 import xmltodict  # for converting xml
 
 # Get API token from command line
-HF_TOKEN = sys.argv[1]
+HF_TOKEN: str = sys.argv[1]
 
 # What years do we care about? Let's get all of them! We also need to download the
 # historical file though (see here: https://www.nsf.gov/awardsearch/download.jsp)
-years = ["Historical"] + [
+years: list[str] = ["Historical"] + [
     str(y) for y in list(range(1959, datetime.datetime.now().year + 1))
 ]
 
 # Make an empty list to add dicts too
-awards = []
+awards: list[dict] = []
 
 # Step through each year, download the associated file, and parse it as set of xml files
 for year in tqdm.auto.tqdm(years, "Downloading annual reports"):
