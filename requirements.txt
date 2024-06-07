@@ -1,4 +1,4 @@
 datasets
-lxml
 pandas
 tqdm
+xmltodict
