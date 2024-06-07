@@ -41,7 +41,9 @@ for year in tqdm.auto.tqdm(years, "Downloading annual reports"):
             try:
                 with open(file, "r") as f:
                     d = xmltodict.parse(f.read())["rootTag"]["Award"]
-                    for k in d.keys():
+                    for k in list(
+                        set(d.keys()) - {"AwardTotalIntnAmount", "AwardAmount"}
+                    ):
                         d[k] = str(d[k])
                     awards.append(d)
             except xmltodict.expat.ExpatError as e:
