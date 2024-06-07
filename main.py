@@ -1,13 +1,16 @@
-import os  # for navigating downloaded files
+import datetime  # to get hte current year
+import io  # for reading downloaded files
 import sys  # to get input arg
 import urllib.request  # to download files
 import zipfile  # to unzip downloaded files
-import datetime  # to get hte current year
 
 import datasets  # to make/upload a dataset
 import pandas  # to handle the dataset
-import tqdm  # for displaying progress
+import tqdm.auto  # for displaying progress
 import xmltodict  # for converting xml
+
+# Features that shouldn't be stringified during processing
+features = {"AwardTotalIntnAmount", "AwardAmount"}
 
 # Get API token from command line
 HF_TOKEN: str = sys.argv[1]
@@ -22,31 +25,31 @@ years: list[str] = ["Historical"] + [
 awards: list[dict] = []
 
 # Step through each year, download the associated file, and parse it as set of xml files
-for year in tqdm.auto.tqdm(years, "Downloading annual reports"):
+for year in tqdm.auto.tqdm(years, "Downloading and parsing by year... "):
 
-    # Download the file
-    filename, _ = urllib.request.urlretrieve(
+    # Set up a request for the file
+    req = urllib.request.Request(
         "https://www.nsf.gov/awardsearch/download?DownloadFileName="
         + year
         + "&All=true"
     )
 
-    # Unzip the file that we just downloaded
-    with zipfile.ZipFile(filename, "r") as zip_ref:
-        zip_ref.extractall(".")
+    # Download the file
+    with urllib.request.urlopen(req) as response:
 
-    # For every xml file that we just exposed, turn it into a dict
-    for file in tqdm.auto.tqdm(os.listdir("./"), "Loading awards"):
-        if file.endswith(".xml"):
-            try:
-                with open(file, "r") as f:
-                    d = xmltodict.parse(f.read())["rootTag"]["Award"]
-                    for k in d.keys():
-                        d[k] = str(d[k])
-                    awards.append(d)
-            except xmltodict.expat.ExpatError as e:
-                print(file, e)
-            os.remove(file)
+        # Unzip the file that we just downloaded
+        with zipfile.ZipFile(io.BytesIO(response.read())) as zip_file:
+
+            # For every file in the zip, turn it into a dict
+            for contained_file in zip_file.infolist():
+                try:
+                    with zip_file.open(contained_file.filename, "r") as f:
+                        award = xmltodict.parse(f.read())["rootTag"]["Award"]
+                        for k in list(set(award.keys()) - features):
+                            award[k] = str(award[k])
+                        awards.append(award)
+                except xmltodict.expat.ExpatError as e:
+                    pass
 
 # Take the dicts, make a dataframe, make a dataset, and upload it
 datasets.Dataset.from_pandas(pandas.DataFrame().from_dict(awards)).push_to_hub(
