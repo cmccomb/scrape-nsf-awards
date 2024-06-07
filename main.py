@@ -52,8 +52,11 @@ for year in tqdm.auto.tqdm(years, "Downloading and parsing by year... "):
                     pass
 
 # Take the dicts, make a dataframe, make a dataset, and upload it
+print("creating dataframe")
 df = pandas.DataFrame().from_dict(awards)
+print("creating dataset")
 ds = datasets.Dataset.from_pandas(df)
+print("pushing to hub")
 ds.push_to_hub(
     "ccm/nsf-awards", token=HF_TOKEN
 )
