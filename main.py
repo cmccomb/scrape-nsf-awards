@@ -14,9 +14,8 @@ HUGGINGFACE_TOKEN: str = sys.argv[1]
 # Features that should be floated during processing
 float_features: set[str] = {"AwardTotalIntnAmount", "AwardAmount"}
 
-# What years do we care about? Let's get all of them! We also need to download the
-# historical file though (see here: https://www.nsf.gov/awardsearch/download.jsp)
-years_of_interest: list[str] = ["Historical"] + [
+# What years do we care about? Let's get all of them! (see here: https://www.nsf.gov/awardsearch/download.jsp)
+years_of_interest: list[str] = [
     str(y) for y in list(range(1959, datetime.datetime.now().year + 1))
 ]
 
