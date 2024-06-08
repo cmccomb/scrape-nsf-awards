@@ -42,12 +42,28 @@ for year in tqdm.auto.tqdm(years_of_interest, "Downloading and parsing by year..
             for contained_file in zip_file.infolist():
                 try:
                     with zip_file.open(contained_file.filename, "r") as file:
+                        # Initialize teh award dict
                         award: dict = xmltodict.parse(file.read())["rootTag"]["Award"]
+
+                        # Make sure everything is a string, except fro known float_features
                         for key in award.keys():
                             if key in float_features:
                                 award[key] = float(award[key] or "nan")
                             else:
                                 award[key] = str(award[key])
+
+                        # Add some data on where this row comes from
+                        award["Source"] = str(
+                            {
+                                "url": "https://www.nsf.gov/awardsearch/download?DownloadFileName="
+                                + year
+                                + "&All=true",
+                                "zip": zip_file.filename,
+                                "xml": contained_file.filename,
+                            }
+                        )
+
+                        # Append it to the long list of similar awards
                         awards.append(award)
 
                 # Sometimes the file is not well-formed, so an error is thrown.
