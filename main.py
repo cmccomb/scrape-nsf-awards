@@ -5,12 +5,11 @@ import urllib.request  # to download files
 import zipfile  # to unzip downloaded files
 
 import datasets  # to make/upload a dataset
-import pandas  # to handle the dataset
 import tqdm.auto  # for displaying progress
 import xmltodict  # for converting xml
 
 # Features that shouldn't be stringified during processing
-features = {"AwardTotalIntnAmount", "AwardAmount"}
+float_features = {"AwardTotalIntnAmount", "AwardAmount"}
 
 # Get API token from command line
 HF_TOKEN: str = sys.argv[1]
@@ -45,17 +44,19 @@ for year in tqdm.auto.tqdm(years, "Downloading and parsing by year... "):
                 try:
                     with zip_file.open(contained_file.filename, "r") as f:
                         award = xmltodict.parse(f.read())["rootTag"]["Award"]
-                        for k in list(set(award.keys()) - features):
+                        for k in list(set(award.keys()) - float_features):
                             award[k] = str(award[k])
+                            if k in float_features:
+                                award[k] = float(award[k])
                         awards.append(award)
                 except xmltodict.expat.ExpatError as e:
                     pass
 
-# Take the dicts, make a dataframe, make a dataset, and upload it
-print("creating dataframe")
-df = pandas.DataFrame().from_dict(awards)
+# Create a dataset from the list of dicts
 print("creating dataset")
-ds = datasets.Dataset.from_pandas(df)
+ds = datasets.Dataset.from_list(awards)
+
+# Upload the dataset to huggingface
 print("pushing to hub")
 ds.push_to_hub(
     "ccm/nsf-awards", token=HF_TOKEN
