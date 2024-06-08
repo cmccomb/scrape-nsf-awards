@@ -48,6 +48,7 @@ for year in tqdm.auto.tqdm(years_of_interest, "Downloading and parsing by year..
                                 award[key] = float(award[key] or "nan")
                             else:
                                 award[key] = str(award[key])
+                        awards.append(award)
 
                 # Sometimes the file is not well-formed, so an error is thrown.
                 # We just chalk this up as a loss.
