@@ -45,7 +45,7 @@ for year in tqdm.auto.tqdm(years_of_interest, "Downloading and parsing by year..
                         # Initialize teh award dict
                         award: dict = xmltodict.parse(file.read())["rootTag"]["Award"]
 
-                        # Make sure everything is a string, except fro known float_features
+                        # Make sure everything is a string, except for known float_features
                         for key in award.keys():
                             if key in float_features:
                                 award[key] = float(award[key] or "nan")
@@ -58,7 +58,6 @@ for year in tqdm.auto.tqdm(years_of_interest, "Downloading and parsing by year..
                                 "url": "https://www.nsf.gov/awardsearch/download?DownloadFileName="
                                 + year
                                 + "&All=true",
-                                "zip": zip_file.filename,
                                 "xml": contained_file.filename,
                             }
                         )
