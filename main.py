@@ -12,7 +12,7 @@ import xmltodict  # for converting xml
 HUGGINGFACE_TOKEN: str = sys.argv[1]
 
 # Features that should be floated during processing
-float_features: set[str] = {"AwardTotalIntnAmount", "AwardAmount"}
+float_keys: set[str] = {"AwardTotalIntnAmount", "AwardAmount"}
 
 # What years do we care about? Let's get all of them! (see here: https://www.nsf.gov/awardsearch/download.jsp)
 years_of_interest: list[str] = [
@@ -47,7 +47,7 @@ for year in tqdm.auto.tqdm(years_of_interest, "Downloading and parsing by year..
 
                         # Make sure everything is a string, except for known float_features
                         for key in award.keys():
-                            if key in float_features:
+                            if key in float_keys:
                                 award[key] = float(award[key] or "nan")
                             else:
                                 award[key] = str(award[key])
